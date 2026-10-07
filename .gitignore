@@ -1,0 +1,14 @@
+build/
+build_host/
+bin_*
+shots4/
+*.o
+*.elf
+*.dol.map
+*.map
+web/app.wasm
+web/app.wasm.gz.b64
+web/wiirremote_pc.html
+data/
+__pycache__/
+.DS_Store

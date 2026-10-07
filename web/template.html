@@ -1,0 +1,493 @@
+<title>WiiRremote Plus PC Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b0e15;
+  --panel: #141925;
+  --panel2: #1b2231;
+  --line: #273044;
+  --text: #e9edf5;
+  --dim: #8d96ab;
+  --accent: #38bdf8;
+  --accent-ink: #04202e;
+  --led: #ff4b4b;
+  --good: #34d399;
+  --warn: #fbbf24;
+}
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 14px/1.5 "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding-inline: 16px; box-sizing: border-box;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 16px 28px; display: grid; gap: 14px; }
+header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+header h1 { font-size: 18px; font-weight: 600; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+header .tag { font: 600 11px/1 "JetBrains Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; }
+header .spacer { flex: 1; }
+.chip { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--dim);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-variant-numeric: tabular-nums; }
+.led { width: 10px; height: 10px; border-radius: 50%; background: #3a1414; box-shadow: none; transition: background .08s, box-shadow .08s; }
+.led.on { background: var(--led); box-shadow: 0 0 10px var(--led), 0 0 20px rgba(255,75,75,.5); }
+.rum.on { color: var(--warn); }
+
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+@media (max-width: 900px) { .main { grid-template-columns: 1fr; } }
+
+.tv { background: #000; border-radius: 18px; padding: 14px; border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 6px #10131b; }
+.screen { position: relative; width: 100%; aspect-ratio: 4 / 3; max-width: 100%; border-radius: 10px; overflow: hidden; background: #000; }
+.screen canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: none; outline: none; }
+.screen canvas:focus-visible { box-shadow: 0 0 0 3px var(--accent) inset; }
+.cursor { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; pointer-events: none;
+  border: 3px solid #fff; background: rgba(56,189,248,.35); box-shadow: 0 0 0 1px rgba(0,0,0,.5); display: none; }
+.overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(6,8,12,.86); text-align: center; padding: 24px; }
+.overlay h2 { font-size: 20px; margin: 0 0 6px; font-weight: 600; }
+.overlay p { margin: 0 0 16px; color: var(--dim); max-width: 42ch; }
+
+aside { display: grid; gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+.card h3 { margin: 0 0 10px; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+
+/* the Wii Remote you can click */
+.remote { display: grid; justify-items: center; gap: 10px; }
+.dpad { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); gap: 2px; }
+.dpad .c { background: var(--panel2); border-radius: 6px; }
+.btn { font: 600 13px/1 "Poppins", system-ui, sans-serif; color: var(--text); background: var(--panel2); border: 1px solid var(--line);
+  border-radius: 10px; min-width: 40px; height: 40px; padding: 0 10px; cursor: pointer; user-select: none; touch-action: none; }
+.btn:hover { border-color: #3a4560; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn.down, .btn:active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.round { border-radius: 50%; width: 40px; padding: 0; }
+.btn.big { width: 56px; height: 56px; border-radius: 50%; font-size: 18px; }
+.row { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.btn.home { font-size: 11px; }
+
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; font-size: 13px; }
+kbd { font: 700 11px/1 "JetBrains Mono", ui-monospace, monospace; color: var(--text); background: var(--panel2);
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 4px 6px; white-space: nowrap; }
+.keys span { color: var(--dim); }
+.note { font-size: 12px; color: var(--dim); margin: 10px 0 0; }
+.tools { display: grid; gap: 8px; }
+.tools .btn { width: 100%; height: 38px; text-align: left; font-weight: 500; }
+.tools .btn.warn.armed { background: #3b1111; border-color: var(--led); color: #ffd4d4; }
+input[type=file] { display: none; }
+.status { font-size: 12px; color: var(--dim); min-height: 18px; }
+@media (prefers-reduced-motion: reduce) { .led { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>WiiRremote Plus</h1>
+    <span class="tag">PC preview · v1.9.1</span>
+    <span class="spacer"></span>
+    <span class="chip" title="Lights up whenever the app would send an IR code to the TV"><span class="led" id="led"></span><span id="irtxt">IR sends: 0</span></span>
+    <span class="chip rum" id="rum">Rumble</span>
+  </header>
+
+  <div class="main">
+    <div class="tv">
+      <div class="screen" id="screen">
+        <canvas id="cv" width="640" height="480" tabindex="0" aria-label="The app screen. Click it, then use the keyboard."></canvas>
+        <div class="cursor" id="cur"></div>
+        <div class="overlay" id="start">
+          <div>
+            <h2>Click to start</h2>
+            <p>This is the real app code running in your browser. Nothing is sent to your TV.</p>
+            <button class="btn" id="go" style="height:44px;padding:0 22px">Start the app</button>
+          </div>
+        </div>
+        <div class="overlay" id="quit" hidden>
+          <div>
+            <h2>The app closed</h2>
+            <p>On the Wii this goes back to the Homebrew Channel.</p>
+            <button class="btn" id="again" style="height:44px;padding:0 22px">Start again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="card">
+        <h3>Wii Remote</h3>
+        <div class="remote">
+          <div class="dpad">
+            <span></span><button class="btn" data-b="2048" aria-label="Up">▲</button><span></span>
+            <button class="btn" data-b="256" aria-label="Left">◀</button><span class="c"></span><button class="btn" data-b="512" aria-label="Right">▶</button>
+            <span></span><button class="btn" data-b="1024" aria-label="Down">▼</button><span></span>
+          </div>
+          <div class="row"><button class="btn big" data-b="8">A</button><button class="btn big" data-b="4">B</button></div>
+          <div class="row"><button class="btn round" data-b="16">−</button><button class="btn home" data-b="128">HOME</button><button class="btn round" data-b="4096">+</button></div>
+          <div class="row"><button class="btn round" data-b="2">1</button><button class="btn round" data-b="1">2</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Keyboard</h3>
+        <div class="keys">
+          <kbd>Arrows</kbd><span>D-pad</span>
+          <kbd>Enter</kbd><span>A (or click the screen)</span>
+          <kbd>Backspace</kbd><span>B (or right-click)</span>
+          <kbd>Esc</kbd><span>HOME</span>
+          <kbd>[ &nbsp; ]</kbd><span>1 and 2</span>
+          <kbd>- &nbsp; =</kbd><span>minus and plus</span>
+        </div>
+        <p class="note">Hold a key to hold the button. On the typing screen, just type.</p>
+      </div>
+
+      <div class="card">
+        <h3>Test files</h3>
+        <div class="tools">
+          <button class="btn" id="imp">Add a remote file (.ir, .conf)</button>
+          <input type="file" id="impf" accept=".ir,.conf,.lirc,.txt" multiple>
+          <button class="btn" id="lib">Teach Smart match a file</button>
+          <input type="file" id="libf" accept=".ir,.conf,.lirc,.txt" multiple>
+          <button class="btn warn" id="wipe">Start over with a clean SD card</button>
+          <div class="status" id="st">Your remotes are kept in this browser.</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const WASM_GZ_B64 = "@@WASM@@";
+const SEED = @@SEED@@;
+const STORE = "wrp-sd-v1";
+
+/* ---------------- a small SD card that lives in memory (and in this browser) ---------------- */
+const fs = new Map();   // path -> {dir:true} | {data:Uint8Array}
+fs.set("", { dir: true });
+const enc = new TextEncoder(), dec = new TextDecoder();
+function norm(p) {
+  const out = [];
+  for (const part of p.split("/")) { if (!part || part === ".") continue; if (part === "..") out.pop(); else out.push(part); }
+  return out.join("/");
+}
+function parent(p) { const i = p.lastIndexOf("/"); return i < 0 ? "" : p.slice(0, i); }
+function mkdirs(p) { let cur = ""; for (const part of p.split("/").filter(Boolean)) { cur = cur ? cur + "/" + part : part; if (!fs.has(cur)) fs.set(cur, { dir: true }); } }
+function b64(u8) { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+function unb64(s) { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+let saveTimer = 0;
+function saveSoon() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const o = {};
+    for (const [k, v] of fs) o[k] = v.dir ? 1 : b64(v.data);
+    try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) { /* private window: stays in memory */ }
+  }, 300);
+}
+function loadFs() {
+  let o = null;
+  try { o = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) { o = null; }
+  if (o) { for (const k in o) fs.set(k, o[k] === 1 ? { dir: true } : { data: unb64(o[k]) }); return true; }
+  for (const k in SEED) { mkdirs(parent(k)); fs.set(k, { data: enc.encode(SEED[k]) }); }
+  return false;
+}
+
+/* ---------------- WASI: just what the app uses ---------------- */
+let mem, inst;
+const fds = new Map();   // fd -> {path, pos, dir}
+fds.set(3, { path: "", pos: 0, dir: true, pre: true });
+let nextFd = 4;
+const E = { OK: 0, BADF: 8, EXIST: 20, INVAL: 28, ISDIR: 31, NOENT: 44, NOTDIR: 54, NOTEMPTY: 55 };
+const dv = () => new DataView(mem.buffer);
+const u8 = () => new Uint8Array(mem.buffer);
+const str = (p, l) => dec.decode(u8().subarray(p, p + l));
+function resolve(fd, p, l) { const f = fds.get(fd); if (!f) return null; return norm((f.path ? f.path + "/" : "") + str(p, l)); }
+let logBuf = "";
+const wasi = {
+  args_get: () => 0, args_sizes_get: (a, b) => { dv().setUint32(a, 0, true); dv().setUint32(b, 0, true); return 0; },
+  environ_get: () => 0, environ_sizes_get: (a, b) => { dv().setUint32(a, 0, true); dv().setUint32(b, 0, true); return 0; },
+  clock_time_get: (id, prec, out) => { dv().setBigUint64(out, BigInt(Math.round((id === 0 ? Date.now() : performance.now()) * 1e6)), true); return 0; },
+  random_get: (p, l) => { crypto.getRandomValues(u8().subarray(p, p + l)); return 0; },
+  proc_exit: (c) => { throw new Error("exit " + c); },
+  fd_prestat_get: (fd, buf) => { if (fd !== 3) return E.BADF; dv().setUint8(buf, 0); dv().setUint32(buf + 4, 1, true); return 0; },
+  fd_prestat_dir_name: (fd, p, l) => { if (fd !== 3) return E.BADF; u8()[p] = 47; return 0; },
+  fd_fdstat_get: (fd, buf) => {
+    const d = dv(); const f = fds.get(fd);
+    if (fd > 2 && !f) return E.BADF;
+    d.setUint8(buf, fd <= 2 ? 2 : f.dir ? 3 : 4); d.setUint16(buf + 2, 0, true);
+    d.setBigUint64(buf + 8, 0xffffffffffffffffn, true); d.setBigUint64(buf + 16, 0xffffffffffffffffn, true); return 0;
+  },
+  fd_fdstat_set_flags: () => 0,
+  path_open: (dirfd, dflags, p, l, oflags, rb, ri, fdflags, out) => {
+    const path = resolve(dirfd, p, l); if (path === null) return E.BADF;
+    let node = fs.get(path);
+    if (!node) {
+      if (!(oflags & 1)) return E.NOENT;
+      if (!fs.has(parent(path)) || !fs.get(parent(path)).dir) return E.NOENT;
+      node = { data: new Uint8Array(0) }; fs.set(path, node); saveSoon();
+    } else if (oflags & 4) return E.EXIST;
+    if ((oflags & 2) && !node.dir) return E.NOTDIR;
+    if (!node.dir && (oflags & 8)) { node.data = new Uint8Array(0); saveSoon(); }
+    const fd = nextFd++;
+    fds.set(fd, { path, pos: (fdflags & 1) && !node.dir ? node.data.length : 0, dir: !!node.dir, append: !!(fdflags & 1) });
+    dv().setUint32(out, fd, true); return 0;
+  },
+  fd_close: (fd) => { if (!fds.has(fd)) return E.BADF; if (fd > 3) fds.delete(fd); return 0; },
+  fd_read: (fd, iovs, n, out) => {
+    const f = fds.get(fd); if (!f || f.dir) { dv().setUint32(out, 0, true); return fd <= 2 ? 0 : E.BADF; }
+    const node = fs.get(f.path); if (!node) return E.BADF;
+    let total = 0; const d = dv();
+    for (let i = 0; i < n; i++) {
+      const ptr = d.getUint32(iovs + i * 8, true), len = d.getUint32(iovs + i * 8 + 4, true);
+      const chunk = node.data.subarray(f.pos, f.pos + len);
+      u8().set(chunk, ptr); f.pos += chunk.length; total += chunk.length;
+      if (chunk.length < len) break;
+    }
+    d.setUint32(out, total, true); return 0;
+  },
+  fd_write: (fd, iovs, n, out) => {
+    const d = dv(); let total = 0;
+    if (fd <= 2) {
+      for (let i = 0; i < n; i++) { const ptr = d.getUint32(iovs + i * 8, true), len = d.getUint32(iovs + i * 8 + 4, true); logBuf += str(ptr, len); total += len; }
+      let k; while ((k = logBuf.indexOf("\n")) >= 0) { console.log("[app]", logBuf.slice(0, k)); logBuf = logBuf.slice(k + 1); }
+      d.setUint32(out, total, true); return 0;
+    }
+    const f = fds.get(fd); if (!f || f.dir) return E.BADF;
+    const node = fs.get(f.path); if (!node) return E.BADF;
+    for (let i = 0; i < n; i++) {
+      const ptr = d.getUint32(iovs + i * 8, true), len = d.getUint32(iovs + i * 8 + 4, true);
+      if (f.append) f.pos = node.data.length;
+      const need = f.pos + len;
+      if (need > node.data.length) { const nb = new Uint8Array(need); nb.set(node.data); node.data = nb; }
+      node.data.set(u8().subarray(ptr, ptr + len), f.pos); f.pos += len; total += len;
+    }
+    saveSoon(); d.setUint32(out, total, true); return 0;
+  },
+  fd_seek: (fd, off, wh, out) => {
+    const f = fds.get(fd); if (!f || f.dir) return E.BADF;
+    const node = fs.get(f.path); const o = Number(off);
+    const np = wh === 0 ? o : wh === 1 ? f.pos + o : node.data.length + o;
+    if (np < 0) return E.INVAL; f.pos = np; dv().setBigUint64(out, BigInt(np), true); return 0;
+  },
+  fd_readdir: (fd, buf, blen, cookie, out) => {
+    const f = fds.get(fd); if (!f || !f.dir) return E.BADF;
+    const pre = f.path ? f.path + "/" : "";
+    const names = [];
+    for (const k of fs.keys()) if (k && k.startsWith(pre) && !k.slice(pre.length).includes("/") && k !== f.path) names.push(k.slice(pre.length));
+    names.sort();
+    const d = dv(); let used = 0;
+    for (let i = Number(cookie); i < names.length; i++) {
+      const nb = enc.encode(names[i]); const node = fs.get(pre + names[i]);
+      const hdr = new DataView(new ArrayBuffer(24));
+      hdr.setBigUint64(0, BigInt(i + 1), true); hdr.setBigUint64(8, BigInt(i + 1), true);
+      hdr.setUint32(16, nb.length, true); hdr.setUint8(20, node.dir ? 3 : 4);
+      const ent = new Uint8Array(24 + nb.length); ent.set(new Uint8Array(hdr.buffer)); ent.set(nb, 24);
+      const room = blen - used; const take = Math.min(room, ent.length);
+      u8().set(ent.subarray(0, take), buf + used); used += take;
+      if (take < ent.length) break;
+    }
+    d.setUint32(out, used, true); return 0;
+  },
+  path_filestat_get: (fd, fl, p, l, buf) => {
+    const path = resolve(fd, p, l); const node = path === null ? null : fs.get(path);
+    if (!node) return E.NOENT;
+    const d = dv(); for (let i = 0; i < 64; i += 8) d.setBigUint64(buf + i, 0n, true);
+    d.setUint8(buf + 16, node.dir ? 3 : 4); d.setBigUint64(buf + 24, 1n, true);
+    d.setBigUint64(buf + 32, BigInt(node.dir ? 0 : node.data.length), true); return 0;
+  },
+  fd_filestat_get: (fd, buf) => {
+    const f = fds.get(fd); if (!f) return E.BADF; const node = fs.get(f.path);
+    const d = dv(); for (let i = 0; i < 64; i += 8) d.setBigUint64(buf + i, 0n, true);
+    d.setUint8(buf + 16, f.dir ? 3 : 4); d.setBigUint64(buf + 32, BigInt(node && !node.dir ? node.data.length : 0), true); return 0;
+  },
+  path_create_directory: (fd, p, l) => {
+    const path = resolve(fd, p, l); if (path === null) return E.BADF;
+    if (fs.has(path)) return E.EXIST; if (!fs.has(parent(path))) return E.NOENT;
+    fs.set(path, { dir: true }); saveSoon(); return 0;
+  },
+  path_remove_directory: (fd, p, l) => {
+    const path = resolve(fd, p, l); const node = fs.get(path);
+    if (!node) return E.NOENT; if (!node.dir) return E.NOTDIR;
+    for (const k of fs.keys()) if (k.startsWith(path + "/")) return E.NOTEMPTY;
+    fs.delete(path); saveSoon(); return 0;
+  },
+  path_unlink_file: (fd, p, l) => {
+    const path = resolve(fd, p, l); const node = fs.get(path);
+    if (!node) return E.NOENT; if (node.dir) return E.ISDIR;
+    fs.delete(path); saveSoon(); return 0;
+  },
+  path_rename: (fd, p, l, fd2, p2, l2) => {
+    const a = resolve(fd, p, l), b = resolve(fd2, p2, l2); const node = fs.get(a);
+    if (!node) return E.NOENT; fs.set(b, node); fs.delete(a); saveSoon(); return 0;
+  },
+};
+
+/* ---------------- sound, IR light, rumble ---------------- */
+let ac = null, toneOsc = null, toneGain = null;
+function audio() { if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ac = null; } } return ac; }
+function beep(hz, pan) {
+  const a = audio(); if (!a) return;
+  const o = a.createOscillator(), g = a.createGain(); o.frequency.value = hz;
+  let node = g;
+  if (a.createStereoPanner) { const p = a.createStereoPanner(); p.pan.value = pan === 0 ? -1 : pan === 2 ? 1 : 0; g.connect(p); node = p; }
+  o.connect(g); node.connect(a.destination);
+  const t = a.currentTime; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.25, t + 0.002); g.gain.setValueAtTime(0.25, t + 0.045); g.gain.linearRampToValueAtTime(0, t + 0.05);
+  o.start(t); o.stop(t + 0.06);
+}
+function tone(hz) {
+  const a = audio(); if (!a) return;
+  if (!hz) { if (toneOsc) { toneGain.gain.setTargetAtTime(0, a.currentTime, 0.01); const o = toneOsc; setTimeout(() => { try { o.stop(); } catch (e) {} }, 80); toneOsc = null; } return; }
+  if (!toneOsc) { toneOsc = a.createOscillator(); toneGain = a.createGain(); toneGain.gain.value = 0.15; toneOsc.connect(toneGain).connect(a.destination); toneOsc.start(); }
+  toneOsc.frequency.setValueAtTime(hz, a.currentTime);
+}
+/* casino music: the app's synth fills each block (the Wii version does the same) */
+let musNode = null;
+function music(on) {
+  const a = audio(); if (!a) return;
+  if (on && !musNode) {
+    if (a.state === "suspended") a.resume();
+    musNode = a.createScriptProcessor(2048, 0, 2);
+    musNode.onaudioprocess = (e) => {
+      const L = e.outputBuffer.getChannelData(0), R = e.outputBuffer.getChannelData(1), n = L.length;
+      if (!inst) { L.fill(0); R.fill(0); return; }
+      const p = inst.exports.web_music(n, a.sampleRate);
+      const s = new Int16Array(inst.exports.memory.buffer, p, n * 2);
+      for (let i = 0; i < n; i++) { L[i] = s[i * 2] / 32768; R[i] = s[i * 2 + 1] / 32768; }
+    };
+    musNode.connect(a.destination);
+  } else if (!on && musNode) { musNode.disconnect(); musNode.onaudioprocess = null; musNode = null; }
+}
+["pointerdown", "keydown"].forEach(ev => document.addEventListener(ev, () => { if (ac && ac.state === "suspended") ac.resume(); }));
+const led = document.getElementById("led"), irtxt = document.getElementById("irtxt"), rum = document.getElementById("rum");
+let irCount = 0, ledOff = 0, rumOff = 0;
+function irFlash() { irCount++; irtxt.textContent = "IR sends: " + irCount; led.classList.add("on"); clearTimeout(ledOff); ledOff = setTimeout(() => led.classList.remove("on"), 140); }
+function rumble(ms) { rum.classList.add("on"); clearTimeout(rumOff); rumOff = setTimeout(() => rum.classList.remove("on"), Math.max(80, ms)); }
+function clockStr(p, n) {
+  const d = new Date(); let h = d.getHours(); const m = d.getMinutes(); const pm = h >= 12; h = h % 12 || 12;
+  const s = enc.encode(h + ":" + String(m).padStart(2, "0") + (pm ? " PM" : " AM"));
+  const k = Math.min(s.length, n - 1); u8().set(s.subarray(0, k), p); u8()[p + k] = 0;
+}
+
+/* ---------------- input ---------------- */
+const B = { UP: 0x0800, DOWN: 0x0400, LEFT: 0x0100, RIGHT: 0x0200, A: 0x0008, B: 0x0004, ONE: 0x0002, TWO: 0x0001, MINUS: 0x0010, PLUS: 0x1000, HOME: 0x0080 };
+const KEYMAP = { ArrowUp: B.UP, ArrowDown: B.DOWN, ArrowLeft: B.LEFT, ArrowRight: B.RIGHT, Enter: B.A, Backspace: B.B,
+  Escape: B.HOME, BracketLeft: B.ONE, BracketRight: B.TWO, Minus: B.MINUS, NumpadSubtract: B.MINUS, Equal: B.PLUS, NumpadAdd: B.PLUS, NumpadEnter: B.A };
+let keyHeld = 0, mouseHeld = 0, padHeld = 0, px = -1, py = -1;
+function hidFor(e) {
+  const c = e.code;
+  if (c.startsWith("Key")) return 4 + (c.charCodeAt(3) - 65);
+  if (c.startsWith("Digit")) { const n = +c[5]; return n === 0 ? 39 : 29 + n; }
+  return { Enter: 40, NumpadEnter: 40, Escape: 41, Backspace: 42, Tab: 43, Space: 44, Minus: 45, Equal: 46, Period: 55, Slash: 56, ArrowRight: 79, ArrowLeft: 80, ArrowDown: 81, ArrowUp: 82 }[c] || 0;
+}
+const cv = document.getElementById("cv"), curEl = document.getElementById("cur"), screenEl = document.getElementById("screen");
+let running = false;
+window.addEventListener("keydown", (e) => {
+  if (!running || e.target.tagName === "INPUT") return;
+  if (inst.exports.web_typing()) {
+    const hid = hidFor(e); const sym = e.key.length === 1 ? e.key.charCodeAt(0) : 0;
+    if (hid || sym) { inst.exports.web_key(hid, sym); e.preventDefault(); }
+    return;
+  }
+  const b = KEYMAP[e.code]; if (!b) return;
+  keyHeld |= b; e.preventDefault();
+});
+window.addEventListener("keyup", (e) => { const b = KEYMAP[e.code]; if (b) keyHeld &= ~b; });
+window.addEventListener("blur", () => { keyHeld = 0; mouseHeld = 0; padHeld = 0; });
+function toScreen(e) { const r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) * 640 / r.width), Math.round((e.clientY - r.top) * 480 / r.height), r]; }
+cv.addEventListener("pointermove", (e) => {
+  const [x, y, r] = toScreen(e); px = Math.max(0, Math.min(639, x)); py = Math.max(0, Math.min(479, y));
+  curEl.style.display = "block"; curEl.style.left = (e.clientX - r.left) + "px"; curEl.style.top = (e.clientY - r.top) + "px";
+});
+cv.addEventListener("pointerleave", () => { px = py = -1; curEl.style.display = "none"; mouseHeld = 0; });
+cv.addEventListener("pointerdown", (e) => { cv.focus(); audio(); mouseHeld |= e.button === 2 ? B.B : B.A; e.preventDefault(); });
+window.addEventListener("pointerup", () => { mouseHeld = 0; });
+cv.addEventListener("contextmenu", (e) => e.preventDefault());
+for (const el of document.querySelectorAll("[data-b]")) {
+  const bit = +el.dataset.b;
+  el.addEventListener("pointerdown", (e) => { audio(); padHeld |= bit; el.classList.add("down"); el.setPointerCapture(e.pointerId); e.preventDefault(); });
+  const up = () => { padHeld &= ~bit; el.classList.remove("down"); };
+  el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+  el.addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") { padHeld |= bit; el.classList.add("down"); e.preventDefault(); e.stopPropagation(); } });
+  el.addEventListener("keyup", (e) => { if (e.key === " " || e.key === "Enter") up(); });
+}
+
+/* ---------------- drawing ---------------- */
+const ctx = cv.getContext("2d");
+const off = document.createElement("canvas"); off.width = 640; off.height = 576;
+const octx = off.getContext("2d");
+const img = octx.createImageData(640, 576);
+const out32 = new Uint32Array(img.data.buffer);
+function draw() {
+  const ptr = inst.exports.web_buf() >>> 0, h = inst.exports.web_bufh();
+  const src = new Uint32Array(mem.buffer, ptr, 640 * h);
+  for (let i = 0; i < src.length; i++) { const c = src[i]; out32[i] = 0xff000000 | ((c & 0xff) << 16) | (c & 0xff00) | ((c >>> 16) & 0xff); }
+  if (h === 480) { ctx.putImageData(img, 0, 0, 0, 0, 640, 480); return; }
+  octx.putImageData(img, 0, 0, 0, 0, 640, h);
+  ctx.imageSmoothingEnabled = h > 300; ctx.drawImage(off, 0, 0, 640, h, 0, 0, 640, 480);
+}
+
+/* ---------------- start ---------------- */
+async function boot() {
+  const bin = unb64(WASM_GZ_B64);
+  const ds = new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream("gzip")));
+  const wasm = await ds.arrayBuffer();
+  const env = { js_now: () => performance.now() + 1000, js_beep: (hz, pan) => beep(hz, pan), js_tone: (hz) => tone(hz), js_ir: () => irFlash(), js_rumble: (ms) => rumble(ms), js_clock: clockStr, js_music: (on) => music(on) };
+  const r = await WebAssembly.instantiate(wasm, { env, wasi_snapshot_preview1: wasi });
+  inst = r.instance; mem = inst.exports.memory;
+  inst.exports._initialize();
+  inst.exports.web_init();
+}
+let last = 0, acc = 0;
+function loop(t) {
+  if (!running) return;
+  acc += Math.min(100, t - (last || t)); last = t;
+  let steps = 0;
+  while (acc >= 1000 / 60 && steps < 4) {
+    acc -= 1000 / 60; steps++;
+    inst.exports.web_pad((keyHeld | mouseHeld | padHeld) >>> 0, px, py);
+    if (!inst.exports.web_frame()) { running = false; tone(0); document.getElementById("quit").hidden = false; draw(); return; }
+  }
+  if (steps) draw();
+  requestAnimationFrame(loop);
+}
+const st = document.getElementById("st");
+async function start() {
+  document.getElementById("start").hidden = true; audio();
+  try { await boot(); } catch (e) { st.textContent = "Could not start: " + e.message; document.getElementById("start").hidden = false; return; }
+  running = true; last = 0; acc = 0; cv.focus(); requestAnimationFrame(loop);
+}
+const hadSaved = loadFs();
+st.textContent = hadSaved ? "Loaded your saved remotes from this browser." : "Started with a demo TV (Living Room CRT). Your changes are kept in this browser.";
+document.getElementById("go").addEventListener("click", start);
+document.getElementById("again").addEventListener("click", () => { document.getElementById("quit").hidden = true; fds.clear(); fds.set(3, { path: "", pos: 0, dir: true, pre: true }); nextFd = 4; start(); });
+
+/* add a remote file to the import folder */
+const impf = document.getElementById("impf");
+document.getElementById("imp").addEventListener("click", () => impf.click());
+impf.addEventListener("change", async () => {
+  mkdirs("data/import");
+  const names = [];
+  for (const f of impf.files) { fs.set("data/import/" + f.name.replace(/[\/\\]/g, "_"), { data: new Uint8Array(await f.arrayBuffer()) }); names.push(f.name); }
+  saveSoon(); impf.value = "";
+  st.textContent = names.length ? "Added " + names.join(", ") + ". In the app: Remote Setup › Import a file › Look again." : st.textContent;
+});
+/* a file for Smart match's library (it learns it, no new remote) */
+const libf = document.getElementById("libf");
+document.getElementById("lib").addEventListener("click", () => libf.click());
+libf.addEventListener("change", async () => {
+  mkdirs("data/library");
+  const names = [];
+  for (const f of libf.files) { fs.set("data/library/" + f.name.replace(/[\/\\]/g, "_"), { data: new Uint8Array(await f.arrayBuffer()) }); names.push(f.name); }
+  saveSoon(); libf.value = "";
+  st.textContent = names.length ? "Smart match will learn " + names.join(", ") + " next time you open it." : st.textContent;
+});
+/* clean SD card: needs two clicks */
+const wipe = document.getElementById("wipe"); let armed = 0;
+wipe.addEventListener("click", () => {
+  if (!armed) { armed = setTimeout(() => { armed = 0; wipe.classList.remove("armed"); wipe.textContent = "Start over with a clean SD card"; }, 3000); wipe.classList.add("armed"); wipe.textContent = "Click again to wipe everything"; return; }
+  clearTimeout(armed); armed = 0;
+  try { localStorage.removeItem(STORE); } catch (e) {}
+  location.reload();
+});
+})();
+</script>

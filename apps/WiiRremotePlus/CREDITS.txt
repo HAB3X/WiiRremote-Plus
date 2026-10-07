@@ -1,0 +1,15 @@
+WiiRremote Plus by Habex
+Based on WiiRremote by Abdelali221 (GPL-3.0).
+
+TV code library (Smart match):
+- Contains/accesses irdb by Simon Peter and contributors, used under permission.
+  For licensing details and for information on how to contribute to the database, see
+  https://github.com/probonopd/irdb
+- Flipper-IRDB by Lucaslhm and contributors (CC0 1.0): https://github.com/Lucaslhm/Flipper-IRDB
+- LIRC remote configurations (lirc-remotes project), decoded by lirc2xml / DecodeIR,
+  via https://github.com/probonopd/lirc-remotes
+
+OSSC remote codes: from the OSSC firmware by marqs85 (GPL-3.0), https://github.com/marqs85/ossc
+
+Font: Poppins (SIL Open Font License).
+Image loading: stb_image by Sean Barrett (public domain).

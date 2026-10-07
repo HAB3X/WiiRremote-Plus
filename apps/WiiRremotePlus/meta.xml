@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+	<name>WiiRremote Plus</name>
+	<coder>Habex</coder>
+	<version>1.9.1</version>
+	<release_date>20260928000000</release_date>
+	<short_description>TV remote and CRT calibration suite</short_description>
+	<long_description>Turn the Wii sensor bar into a TV remote, and calibrate your CRT.
+
+Remote: saved and named remotes, an on-screen remote, button finder, code scanner (with address-first and group testing), Smart match (checks your buttons, then finds the rest from a library of 929 TV code sets), macros, favourites, sleep timer and notes. Import Flipper Zero .ir and LIRC .conf files.
+
+Calibration Suite: guided calibration for colour, grey levels, geometry, sharpness and signal problems. Three modes: step-by-step Guided, Intense (asks questions with test pictures, finds the fault, tells you which setting to turn and when to stop) and Ultra handhold (uses and backs up your service menu numbers). 40 test pictures, 240p/480i/480p/576i.
+
+Service menus can damage a TV: write every number down before changing it.
+
+Works with Wii Remote, Nunchuk, Classic, Wii U Pro, GameCube, Guitar, Balance Board, USB keyboard and mouse. Needs the wired sensor bar pointed at the TV's IR window.
+
+Made by Habex. Based on WiiRremote by Abdelali221 (GPL-3.0). Font: Poppins (SIL OFL). Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb. Also uses Flipper-IRDB (CC0) and the LIRC remotes collection. See CREDITS.txt.</long_description>
+	<ahb_access/>
+</app>
